@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>gz_utils_vendor</name>
+  <version>2.2.0</version>
+  <description>This package provides the Gazebo Utils library.</description>
+  <maintainer email="mjcarroll@intrinsic.ai">Michael Carroll</maintainer>
+  <license>Apache License 2.0</license>  <!-- Both this package and gz-utils are ASL 2.0 -->
+
+  <url type="website">https://github.com/gazebosim/gz-utils</url>
+  <author email="logans@cottsay.net">Scott K Logan</author>
+
+  <buildtool_depend>ament_cmake_core</buildtool_depend>
+  <buildtool_depend>ament_cmake_test</buildtool_depend>
+  <buildtool_depend>ament_cmake_vendor_package</buildtool_depend>
+  <buildtool_depend>gz_cmake_vendor</buildtool_depend>
+
+  <depend>gz-utils2</depend>
+
+  <test_depend>ament_cmake_copyright</test_depend>
+  <test_depend>ament_cmake_lint_cmake</test_depend>
+  <test_depend>ament_cmake_xmllint</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
