@@ -7,13 +7,19 @@ find_package(ament_cmake_vendor_package REQUIRED)
 find_package(gz_cmake_vendor REQUIRED)
 find_package(gz_utils_vendor REQUIRED)
 
+set(LIB_DESIGNATOR math)
+set(LIB_VER_MAJOR 7)
+set(LIB_VER_MINOR 3)
+set(LIB_VER_PATCH 0)
 
-find_package(gz-math7 7.3.0 QUIET)
+set(LIB_NAME gz-${LIB_DESIGNATOR})
+set(LIB_VER ${LIB_VER_MAJOR}.${LIB_VER_MINOR}.${LIB_VER_PATCH})
 
-ament_vendor(gz_math_vendor
-  SATISFIED ${gz-math7_FOUND}
-  VCS_URL https://github.com/gazebosim/gz-math.git
-  VCS_VERSION gz-math7_7.3.0
+find_package(${LIB_NAME}${LIB_VER_MAJOR} ${LIB_VER} QUIET)
+ament_vendor(gz_${LIB_DESIGNATOR}_vendor
+  SATISFIED ${${LIB_NAME}${LIB_VER_MAJOR}_FOUND}
+  VCS_URL https://github.com/gazebosim/${LIB_NAME}.git
+  VCS_VERSION ${LIB_NAME}${LIB_VER_MAJOR}_${LIB_VER}
   CMAKE_ARGS
     -DBUILD_DOCS:BOOL=OFF
   GLOBAL_HOOK
@@ -30,4 +36,6 @@ if(BUILD_TESTING)
   ament_xmllint()
 endif()
 
-ament_package()
+ament_package(
+  CONFIG_EXTRAS_POST "gz_math_vendor-extras.cmake.in"
+)
