@@ -12,8 +12,8 @@
 
   <buildtool_depend>ament_cmake_core</buildtool_depend>
   <buildtool_depend>ament_cmake_test</buildtool_depend>
-  <buildtool_depend>ament_cmake_vendor_package</buildtool_depend>
 
+  <depend>gz_utils_vendor</depend>
   <depend>gz_math_vendor</depend>
 
   <test_depend>ament_cmake_copyright</test_depend>

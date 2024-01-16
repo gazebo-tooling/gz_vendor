@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.10)
 project(test_gz_vendor)
 
 find_package(ament_cmake_core REQUIRED)
-find_package(ament_cmake_vendor_package REQUIRED)
 
 find_package(gz_math_vendor REQUIRED)
 find_package(gz_utils_vendor REQUIRED)
