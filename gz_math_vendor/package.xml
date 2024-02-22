@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
-<package format="2">
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>gz_math_vendor</name>
   <version>7.3.0</version>
   <description>This package provides the Gazebo Math library.</description>
@@ -14,11 +14,11 @@
   <buildtool_depend>ament_cmake_test</buildtool_depend>
   <buildtool_depend>ament_cmake_vendor_package</buildtool_depend>
 
+  <build_depend>eigen</build_depend>
+
   <depend>gz_cmake_vendor</depend>
   <depend>gz_utils_vendor</depend>
-  <depend>gz-math7</depend>
-
-  <build_depend>eigen</build_depend>
+  <depend condition="$GZ_BUILD_FROM_SOURCE != ''">gz-math7</depend>
 
   <test_depend>ament_cmake_copyright</test_depend>
   <test_depend>ament_cmake_lint_cmake</test_depend>

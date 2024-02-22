@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
-<package format="2">
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>gz_utils_vendor</name>
   <version>2.2.0</version>
   <description>This package provides the Gazebo Utils library.</description>
@@ -13,9 +13,10 @@
   <buildtool_depend>ament_cmake_core</buildtool_depend>
   <buildtool_depend>ament_cmake_test</buildtool_depend>
   <buildtool_depend>ament_cmake_vendor_package</buildtool_depend>
-  <buildtool_depend>gz_cmake_vendor</buildtool_depend>
 
-  <depend>gz-utils2</depend>
+  <depend>gz_cmake_vendor</depend>
+
+  <depend condition="$GZ_BUILD_FROM_SOURCE != ''">gz-utils2</depend>
 
   <test_depend>ament_cmake_copyright</test_depend>
   <test_depend>ament_cmake_lint_cmake</test_depend>
