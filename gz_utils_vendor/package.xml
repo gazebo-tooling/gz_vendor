@@ -3,12 +3,10 @@
 <package format="3">
   <name>gz_utils_vendor</name>
   <version>2.2.0</version>
-  <description>This package provides the Gazebo Utils library.</description>
-  <maintainer email="mjcarroll@intrinsic.ai">Michael Carroll</maintainer>
-  <license>Apache License 2.0</license>  <!-- Both this package and gz-utils are ASL 2.0 -->
-
+  <description>Gazebo Utils : Classes and functions for robot applications</description>
+  <maintainer email="addisu@openrobotics.org">Addizu Z. Taddese</maintainer>
+  <license>Apache License 2.0</license>
   <url type="website">https://github.com/gazebosim/gz-utils</url>
-  <author email="logans@cottsay.net">Scott K Logan</author>
 
   <buildtool_depend>ament_cmake_core</buildtool_depend>
   <buildtool_depend>ament_cmake_test</buildtool_depend>
@@ -16,7 +14,8 @@
 
   <depend>gz_cmake_vendor</depend>
 
-  <depend condition="$GZ_BUILD_FROM_SOURCE != ''">gz-utils2</depend>
+  <!-- Depend on the package we are vendoring to allow building it from source -->
+  <build_depend condition="$GZ_BUILD_FROM_SOURCE != ''">gz-utils2</build_depend>
 
   <test_depend>ament_cmake_copyright</test_depend>
   <test_depend>ament_cmake_lint_cmake</test_depend>

@@ -2,18 +2,18 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>gz_cmake_vendor</name>
-  <version>0.2.1</version>
-  <description>This package provides the Gazebo CMake library.</description>
-  <maintainer email="mjcarroll@intrinsic.ai">Michael Carroll</maintainer>
-  <license>Apache License 2.0</license>  <!-- Both this package and gz-cmake are ASL 2.0 -->
-
+  <version>3.4.1</version>
+  <description>Gazebo CMake : CMake Modules for Gazebo Projects</description>
+  <maintainer email="grey@openrobotics.org">Michael X Grey</maintainer>
+  <license>Apache License 2.0</license>
   <url type="website">https://github.com/gazebosim/gz-cmake</url>
-  <author email="logans@cottsay.net">Scott K Logan</author>
 
   <buildtool_depend>ament_cmake_core</buildtool_depend>
   <buildtool_depend>ament_cmake_test</buildtool_depend>
   <buildtool_depend>ament_cmake_vendor_package</buildtool_depend>
 
+
+  <!-- Depend on the package we are vendoring to allow building it from source -->
   <build_depend condition="$GZ_BUILD_FROM_SOURCE != ''">gz-cmake3</build_depend>
 
   <test_depend>ament_cmake_copyright</test_depend>
