@@ -1,7 +1,13 @@
 import argparse
 import sys
 from catkin_pkg.package import parse_package_string
-from create_vendor_packages import (remove_version, create_vendor_name, generate_vendor_package_files)
+from create_vendor_packages import (
+    pkg_has_dsv,
+    pkg_has_extra_cmake,
+    remove_version, 
+    create_vendor_name, 
+    generate_vendor_package_files,
+)
 import os
 import shutil
 from pathlib import Path
@@ -36,9 +42,11 @@ def main(argv=sys.argv[1:]):
     for file in ["LICENSE", "CONTRIBUTING.md"]:
         shutil.copy(templates_path / file, Path(vendor_name) / file)
 
-    if vendor_name not in ['gz-tools', 'gz-cmake']:
+    if pkg_has_extra_cmake(pkg_name_no_version):
         shutil.copy(templates_path / "extras.cmake.in", Path(vendor_name) / f"{vendor_name}-extras.cmake.in")
-    shutil.copy(templates_path / "vendor.dsv.in", Path(vendor_name) / f"{vendor_name}.dsv.in")
+
+    if pkg_has_dsv(pkg_name_no_version):
+        shutil.copy(templates_path / "vendor.dsv.in", Path(vendor_name) / f"{vendor_name}.dsv.in")
 
 if __name__ == "__main__":
     main()
