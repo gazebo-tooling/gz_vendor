@@ -51,8 +51,4 @@ if(BUILD_TESTING)
   ament_xmllint()
 endif()
 
-ament_export_dependencies(
-)
-ament_package(
-  CONFIG_EXTRAS_POST "gz_cmake_vendor-extras.cmake.in"
-)
+ament_package()

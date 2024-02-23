@@ -63,7 +63,9 @@ ament_export_dependencies(
 {% endfor %}
 )
 
-ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.dsv.in")
+if (NOT ${${LIB_NAME_FULL}_FOUND})
+  ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.dsv.in")
+endif()
 
 ament_package(
 {%- if vendor_has_extra_cmake %}
