@@ -24,6 +24,14 @@ find_package(ament_cmake_export_dependencies REQUIRED)
 find_package({{ dep }} REQUIRED)
 {% endfor %}
 
+{% if cmake_pkg_name == "gz-tools" %}
+find_program(GZ_TOOLS_PROGRAM gz)
+if(NOT GZ_TOOLS_PROGRAM)
+  set(${LIB_NAME_FULL}_FOUND false)
+else()
+  set(${LIB_NAME_FULL}_FOUND true)
+endif()
+{% else %}
 # Set the VERSION_MATCH to "EXACT" by default, but relax the requirement
 # if we are users are building from source (determined by the
 # GZ_BUILD_FROM_SOURCE environment variable) or if explicitly told to do so
@@ -38,6 +46,8 @@ if(NOT $ENV{GZ_RELAX_VERSION_MATCH} STREQUAL "")
 endif()
 
 find_package(${LIB_NAME_FULL} ${VERSION_MATCH} ${LIB_VER} COMPONENTS all QUIET)
+{% endif %}
+
 ament_vendor(${LIB_NAME_UNDERSCORE}_vendor
   SATISFIED ${${LIB_NAME_FULL}_FOUND}
   VCS_URL https://github.com/gazebosim/${GITHUB_NAME}.git
@@ -63,12 +73,14 @@ ament_export_dependencies(
 {% endfor %}
 )
 
-if (NOT ${${LIB_NAME_FULL}_FOUND})
+{% if vendor_has_dsv %}
+if(NOT ${${LIB_NAME_FULL}_FOUND})
   ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.dsv.in")
 endif()
+{% endif %}
 
 ament_package(
-{%- if vendor_has_extra_cmake %}
+{%- if vendor_has_extra_cmake -%}
   CONFIG_EXTRAS_POST "{{ vendor_name }}-extras.cmake.in"
-{% endif -%}
+{%- endif -%}
 )

@@ -129,12 +129,15 @@ def create_cmake_file(src_pkg_xml: Package):
     if cmake_pkg_name == 'gz-fuel-tools':
         cmake_pkg_name = 'gz-fuel_tools'
 
-    has_extra_cmake = pkg_name_no_version in ['gz-tools', 'gz-cmake']
+    vendor_has_extra_cmake = pkg_name_no_version not in ['gz-tools', 'gz-cmake']
+
+    vendor_has_dsv = pkg_name_no_version not in ['gz-tools']
 
     return template.render(pkg=vendor_pkg_xml, cmake_pkg_name=cmake_pkg_name,
                            github_pkg_name=pkg_name_no_version,
                            vendor_name=vendor_name, gz_vendor_deps=gz_deps,
-                           has_extra_cmake=has_extra_cmake,
+                           vendor_has_extra_cmake=vendor_has_extra_cmake,
+                           vendor_has_dsv=vendor_has_dsv,
                            version=split_version(vendor_pkg_xml.version))
 
 def generate_vendor_package_files(package: Package, output_dir):
