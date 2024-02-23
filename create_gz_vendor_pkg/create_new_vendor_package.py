@@ -36,7 +36,8 @@ def main(argv=sys.argv[1:]):
     for file in ["LICENSE", "CONTRIBUTING.md"]:
         shutil.copy(templates_path / file, Path(vendor_name) / file)
 
-    shutil.copy(templates_path / "extras.cmake.in", Path(vendor_name) / f"{vendor_name}-extras.cmake.in")
+    if vendor_name not in ['gz-tools', 'gz-cmake']:
+        shutil.copy(templates_path / "extras.cmake.in", Path(vendor_name) / f"{vendor_name}-extras.cmake.in")
     shutil.copy(templates_path / "vendor.dsv.in", Path(vendor_name) / f"{vendor_name}.dsv.in")
 
 if __name__ == "__main__":
