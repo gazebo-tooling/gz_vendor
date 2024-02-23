@@ -16,14 +16,15 @@ find_package(ament_cmake_core REQUIRED)
 find_package(ament_cmake_vendor_package REQUIRED)
 
 # Set the VERSION_MATCH to "EXACT" by default, but relax the requirement
-# if we are users are building from source (determined by the GZ_BUILD_FROM_SOURCE environment variable)
-# or if explicitly told to do so by the GZ_RELAX_VERSION_MATCH environment variable.
+# if we are users are building from source (determined by the
+# GZ_BUILD_FROM_SOURCE environment variable) or if explicitly told to do
+# so by the GZ_RELAX_VERSION_MATCH environment variable.
 set(VERSION_MATCH "EXACT")
-if (NOT $ENV{GZ_BUILD_FROM_SOURCE} STREQUAL "")
+if(NOT $ENV{GZ_BUILD_FROM_SOURCE} STREQUAL "")
   set(VERSION_MATCH "")
 endif()
 
-if (NOT $ENV{GZ_RELAX_VERSION_MATCH} STREQUAL "")
+if(NOT $ENV{GZ_RELAX_VERSION_MATCH} STREQUAL "")
   set(VERSION_MATCH "")
 endif()
 

@@ -57,4 +57,3 @@ ament_export_dependencies(
 ament_package(
   CONFIG_EXTRAS_POST "gz_utils_vendor-extras.cmake.in"
 )
-message("cmake prefix: ${CMAKE_PREFIX_PATH}")

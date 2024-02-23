@@ -23,11 +23,11 @@ find_package(gz_utils_vendor REQUIRED)
 # if we are users are building from source (determined by the GZ_BUILD_FROM_SOURCE environment variable)
 # or if explicitly told to do so by the GZ_RELAX_VERSION_MATCH environment variable.
 set(VERSION_MATCH "EXACT")
-if (NOT $ENV{GZ_BUILD_FROM_SOURCE} STREQUAL "")
+if(NOT $ENV{GZ_BUILD_FROM_SOURCE} STREQUAL "")
   set(VERSION_MATCH "")
 endif()
 
-if (NOT $ENV{GZ_RELAX_VERSION_MATCH} STREQUAL "")
+if(NOT $ENV{GZ_RELAX_VERSION_MATCH} STREQUAL "")
   set(VERSION_MATCH "")
 endif()
 
@@ -58,4 +58,3 @@ ament_export_dependencies(
 ament_package(
   CONFIG_EXTRAS_POST "gz_math_vendor-extras.cmake.in"
 )
-message("cmake prefix: ${CMAKE_PREFIX_PATH}")
