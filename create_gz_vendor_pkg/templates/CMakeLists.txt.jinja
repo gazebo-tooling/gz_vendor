@@ -8,7 +8,8 @@ set(LIB_VER_MINOR {{ version.minor }})
 set(LIB_VER_PATCH {{ version.patch }})
 
 # Derived variables
-set(LIB_NAME {{ pkg_name_no_version }})
+set(LIB_NAME {{ cmake_pkg_name }})
+set(GITHUB_NAME {{ github_pkg_name }})
 string(REPLACE "-" "_" LIB_NAME_UNDERSCORE ${LIB_NAME})
 # string(REPLACE "gz-" "gz::" LIB_NAME_COMP_PREFIX ${LIB_NAME})
 set(LIB_NAME_COMP_PREFIX ${LIB_NAME})
@@ -39,8 +40,8 @@ endif()
 find_package(${LIB_NAME_FULL} ${VERSION_MATCH} ${LIB_VER} COMPONENTS all QUIET)
 ament_vendor(${LIB_NAME_UNDERSCORE}_vendor
   SATISFIED ${${LIB_NAME_FULL}_FOUND}
-  VCS_URL https://github.com/gazebosim/${LIB_NAME}.git
-  VCS_VERSION ${LIB_NAME_FULL}_${LIB_VER}
+  VCS_URL https://github.com/gazebosim/${GITHUB_NAME}.git
+  VCS_VERSION ${GITHUB_NAME}${LIB_VER_MAJOR}_${LIB_VER}
   CMAKE_ARGS
     -DBUILD_DOCS:BOOL=OFF
 )
@@ -61,6 +62,9 @@ ament_export_dependencies(
   {{ dep }}
 {% endfor %}
 )
+
+ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.dsv.in")
+
 ament_package(
   CONFIG_EXTRAS_POST "{{ vendor_name }}-extras.cmake.in"
 )

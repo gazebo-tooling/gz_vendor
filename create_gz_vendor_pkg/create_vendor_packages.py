@@ -2,7 +2,6 @@ import argparse
 import sys
 from catkin_pkg.package import Dependency, parse_package_string, Package
 import re
-import os
 import copy
 import jinja2
 from pathlib import Path
@@ -10,19 +9,20 @@ from pathlib import Path
 
 GZ_LIBRARIES = [
     'gz-cmake',
-    'gz-tools',
-    'gz-utils',
-    'gz-math',
     'gz-common',
-    'gz-plugin'
-    'gz-msgs'
-    'gz-transport',
+    'gz-fuel-tools',
+    'gz-gui',
+    'gz-launch',
+    'gz-math',
+    'gz-msgs',
     'gz-physics',
+    'gz-plugin',
     'gz-rendering',
     'gz-sensors',
-    'gz-gui',
     'gz-sim',
-    'gz-launch'
+    'gz-tools',
+    'gz-transport',
+    'gz-utils',
     'sdformat',
 ]
 
@@ -99,8 +99,7 @@ def create_vendor_package_xml(src_pkg_xml: Package):
     for dep in gz_deps:
         vendorize_gz_dependency(dep)
 
-    return template.render(pkg=vendor_pkg_xml, pkg_name_no_version=pkg_name_no_version,
-                           vendor_name=vendor_name, gz_vendor_deps=gz_deps)
+    return template.render(pkg=vendor_pkg_xml, vendor_name=vendor_name, gz_vendor_deps=gz_deps)
 
 def create_cmake_file(src_pkg_xml: Package):
     templates_path = Path(__file__).resolve().parent / "templates"
@@ -124,9 +123,15 @@ def create_cmake_file(src_pkg_xml: Package):
     for dep in gz_deps:
         vendorize_gz_dependency(dep)
 
-    return template.render(pkg=vendor_pkg_xml, pkg_name_no_version=pkg_name_no_version,
+    # gz-fuel-tools needs special care as it's cmake package name is different
+    # from its deb package name.
+    cmake_pkg_name = pkg_name_no_version
+    if cmake_pkg_name == 'gz-fuel-tools':
+        cmake_pkg_name = 'gz-fuel_tools'
+
+    return template.render(pkg=vendor_pkg_xml, cmake_pkg_name=cmake_pkg_name,
+                           github_pkg_name=pkg_name_no_version,
                            vendor_name=vendor_name, gz_vendor_deps=gz_deps,
-                           lib_designator=get_lib_designator(pkg_name_no_version),
                            version=split_version(vendor_pkg_xml.version))
 
 def generate_vendor_package_files(package: Package, output_dir):
