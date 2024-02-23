@@ -3,13 +3,15 @@ cmake_minimum_required(VERSION 3.10)
 project(gz_math_vendor)
 
 # Project-specific settings
-set(LIB_DESIGNATOR math)
 set(LIB_VER_MAJOR 7)
 set(LIB_VER_MINOR 3)
 set(LIB_VER_PATCH 0)
 
 # Derived variables
-set(LIB_NAME gz-${LIB_DESIGNATOR})
+set(LIB_NAME gz-math)
+string(REPLACE "-" "_" LIB_NAME_UNDERSCORE ${LIB_NAME})
+# string(REPLACE "gz-" "gz::" LIB_NAME_COMP_PREFIX ${LIB_NAME})
+set(LIB_NAME_COMP_PREFIX ${LIB_NAME})
 set(LIB_NAME_FULL ${LIB_NAME}${LIB_VER_MAJOR})
 set(LIB_VER ${LIB_VER_MAJOR}.${LIB_VER_MINOR}.${LIB_VER_PATCH})
 
@@ -34,7 +36,7 @@ if(NOT $ENV{GZ_RELAX_VERSION_MATCH} STREQUAL "")
 endif()
 
 find_package(${LIB_NAME_FULL} ${VERSION_MATCH} ${LIB_VER} COMPONENTS all QUIET)
-ament_vendor(gz_${LIB_DESIGNATOR}_vendor
+ament_vendor(${LIB_NAME_UNDERSCORE}_vendor
   SATISFIED ${${LIB_NAME_FULL}_FOUND}
   VCS_URL https://github.com/gazebosim/${LIB_NAME}.git
   VCS_VERSION ${LIB_NAME_FULL}_${LIB_VER}
