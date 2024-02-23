@@ -4,7 +4,7 @@ from catkin_pkg.package import Dependency, parse_package_string, Package
 import re
 import jinja2
 
-VENDOR_PKG_TEMPLATE = '''
+VENDOR_PKG_TEMPLATE = '''\
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
@@ -14,15 +14,12 @@ VENDOR_PKG_TEMPLATE = '''
   {% for maintainer in pkg.maintainers %}
   <maintainer email="{{ maintainer.email }}">{{ maintainer.name }}</maintainer>
   {% endfor %}
-
   {% for license in pkg.licenses %}
-  <license>{{ license }}<license>
+  <license>{{ license }}</license>
   {% endfor %}
-
   {% for url in pkg.urls %}
   <url type="{{ url.type }}">{{ url.url }}</url>
   {% endfor %}
-
   {% for author in pkg.authors %}
   <author email="{{ author.email }}">{{ author.name }}</author>
   {% endfor %}
@@ -34,24 +31,21 @@ VENDOR_PKG_TEMPLATE = '''
   {% for dep in pkg.build_depends %}
   <build_depend>{{ dep.name }}</build_depend>
   {% endfor %}
-
   {% for dep in pkg.exec_depends %}
   <exec_depend>{{ dep.name }}</exec_depend>
   {% endfor %}
-
   {% for dep in pkg.test_depends %}
   <test_depend>{{ dep.name }}</test_depend>
   {% endfor %}
-
   {% for dep in pkg.doc_depends %}
   <doc_depend>{{ dep.name }}</doc_depend>
   {% endfor %}
-
   {% for dep in gz_vendor_deps %}
   <depend>{{ dep.name }}</depend>
   {% endfor %}
 
-  <depend condition="$GZ_BUILD_FROM_SOURCE != ''">{{ pkg.name }}</depend>
+  <!-- Depend on the package we are vendoring to allow building it from source -->
+  <build_depend condition="$GZ_BUILD_FROM_SOURCE != ''">{{ pkg.name }}</build_depend>
 
   <test_depend>ament_cmake_copyright</test_depend>
   <test_depend>ament_cmake_lint_cmake</test_depend>
