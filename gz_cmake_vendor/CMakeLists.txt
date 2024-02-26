@@ -2,10 +2,16 @@
 cmake_minimum_required(VERSION 3.10)
 project(gz_cmake_vendor)
 
-# Project-specific settings
-set(LIB_VER_MAJOR 3)
-set(LIB_VER_MINOR 4)
-set(LIB_VER_PATCH 1)
+find_package(ament_cmake_core REQUIRED)
+find_package(ament_cmake_vendor_package REQUIRED)
+find_package(ament_cmake_export_dependencies REQUIRED)
+
+ament_package_xml()
+
+string(REPLACE "." ";" VERSION_LIST ${${PROJECT_NAME}_VERSION})
+list(GET VERSION_LIST 0 ${PROJECT_NAME}_MAJOR)
+list(GET VERSION_LIST 1 ${PROJECT_NAME}_MINOR)
+list(GET VERSION_LIST 2 ${PROJECT_NAME}_PATCH)
 
 # Derived variables
 set(LIB_NAME gz-cmake)
@@ -13,13 +19,7 @@ set(GITHUB_NAME gz-cmake)
 string(REPLACE "-" "_" LIB_NAME_UNDERSCORE ${LIB_NAME})
 # string(REPLACE "gz-" "gz::" LIB_NAME_COMP_PREFIX ${LIB_NAME})
 set(LIB_NAME_COMP_PREFIX ${LIB_NAME})
-set(LIB_NAME_FULL ${LIB_NAME}${LIB_VER_MAJOR})
-set(LIB_VER ${LIB_VER_MAJOR}.${LIB_VER_MINOR}.${LIB_VER_PATCH})
-
-find_package(ament_cmake_core REQUIRED)
-find_package(ament_cmake_vendor_package REQUIRED)
-find_package(ament_cmake_export_dependencies REQUIRED)
-
+set(LIB_NAME_FULL ${LIB_NAME}${${PROJECT_NAME}_MAJOR})
 
 # Set the VERSION_MATCH to "EXACT" by default, but relax the requirement
 # if we are users are building from source (determined by the
@@ -34,12 +34,12 @@ if(NOT $ENV{GZ_RELAX_VERSION_MATCH} STREQUAL "")
   set(VERSION_MATCH "")
 endif()
 
-find_package(${LIB_NAME_FULL} ${VERSION_MATCH} ${LIB_VER} COMPONENTS all QUIET)
+find_package(${LIB_NAME_FULL} ${VERSION_MATCH} ${${PROJECT_NAME}_VERSION} COMPONENTS all QUIET)
 
 ament_vendor(${LIB_NAME_UNDERSCORE}_vendor
   SATISFIED ${${LIB_NAME_FULL}_FOUND}
   VCS_URL https://github.com/gazebosim/${GITHUB_NAME}.git
-  VCS_VERSION ${GITHUB_NAME}${LIB_VER_MAJOR}_${LIB_VER}
+  VCS_VERSION ${GITHUB_NAME}${${PROJECT_NAME}_MAJOR}_${${PROJECT_NAME}_VERSION}
   CMAKE_ARGS
     -DBUILD_DOCS:BOOL=OFF
   GLOBAL_HOOK
