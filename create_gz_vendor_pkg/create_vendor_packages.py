@@ -86,7 +86,8 @@ def pkg_has_dsv(pkg_name_no_version):
 def create_vendor_package_xml(src_pkg_xml: Package):
     templates_path = Path(__file__).resolve().parent / "templates"
     jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(templates_path),
-                                   trim_blocks=True, lstrip_blocks=True)
+                                   trim_blocks=True, lstrip_blocks=True,
+                                   keep_trailing_newline=True)
     template = jinja_env.get_template("package.xml.jinja")
     vendor_pkg_xml = copy.deepcopy(src_pkg_xml)
 
@@ -110,7 +111,8 @@ def create_vendor_package_xml(src_pkg_xml: Package):
 def create_cmake_file(src_pkg_xml: Package):
     templates_path = Path(__file__).resolve().parent / "templates"
     jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(templates_path),
-                                   trim_blocks=True, lstrip_blocks=True)
+                                   trim_blocks=True, lstrip_blocks=True,
+                                   keep_trailing_newline=True)
     template = jinja_env.get_template("CMakeLists.txt.jinja")
     vendor_pkg_xml = copy.deepcopy(src_pkg_xml)
 
