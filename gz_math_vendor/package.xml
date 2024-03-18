@@ -5,7 +5,7 @@
   <name>gz_math_vendor</name>
   <version>7.4.0</version>
   <description>Gazebo Math : Math classes and functions for robot applications</description>
-  <maintainer email="nate@openrobotics.org">Nate Koenig</maintainer>
+  <maintainer email="addisuzt@intrinsic.ai">Addisu Z. Taddese</maintainer>
   <license>Apache License 2.0</license>
   <url type="website">https://github.com/gazebosim/gz-math</url>
 

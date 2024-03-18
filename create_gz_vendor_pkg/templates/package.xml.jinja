@@ -5,9 +5,7 @@
   <name>{{ vendor_name }}</name>
   <version>{{ pkg.version }}</version>
   <description>{{ pkg.description }}</description>
-  {% for maintainer in pkg.maintainers %}
-  <maintainer email="{{ maintainer.email }}">{{ maintainer.name }}</maintainer>
-  {% endfor %}
+  <maintainer email="addisuzt@intrinsic.ai">Addisu Z. Taddese</maintainer>
   {% for license in pkg.licenses %}
   <license>{{ license }}</license>
   {% endfor %}

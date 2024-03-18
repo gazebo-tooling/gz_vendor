@@ -5,7 +5,7 @@
   <name>gz_cmake_vendor</name>
   <version>3.5.0</version>
   <description>Gazebo CMake : CMake Modules for Gazebo Projects</description>
-  <maintainer email="scpeters@openrobotics.org">Steve Peters</maintainer>
+  <maintainer email="addisuzt@intrinsic.ai">Addisu Z. Taddese</maintainer>
   <license>Apache License 2.0</license>
   <url type="website">https://github.com/gazebosim/gz-cmake</url>
 
