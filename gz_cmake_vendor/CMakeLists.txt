@@ -4,14 +4,13 @@ project(gz_cmake_vendor)
 
 # Project-specific settings
 set(LIB_VER_MAJOR 3)
-set(LIB_VER_MINOR 4)
-set(LIB_VER_PATCH 1)
+set(LIB_VER_MINOR 5)
+set(LIB_VER_PATCH 0)
 
 # Derived variables
 set(LIB_NAME gz-cmake)
 set(GITHUB_NAME gz-cmake)
 string(REPLACE "-" "_" LIB_NAME_UNDERSCORE ${LIB_NAME})
-# string(REPLACE "gz-" "gz::" LIB_NAME_COMP_PREFIX ${LIB_NAME})
 set(LIB_NAME_COMP_PREFIX ${LIB_NAME})
 set(LIB_NAME_FULL ${LIB_NAME}${LIB_VER_MAJOR})
 set(LIB_VER ${LIB_VER_MAJOR}.${LIB_VER_MINOR}.${LIB_VER_PATCH})
