@@ -26,6 +26,12 @@ GZ_LIBRARIES = [
     'sdformat',
 ]
 
+EXTRA_VENDORED_PKGS = {
+    'dartsim': 'gz_dartsim_vendor',
+    'libogre-next-2.3-dev': 'gz_ogre_next_vendor',
+    'libogre-next-2.3': 'gz_ogre_next_vendor',
+}
+
 def remove_version(pkg_name: str):
     pkg_name_no_version = re.match('[-_a-z]*', pkg_name)
     if not pkg_name_no_version:
@@ -36,10 +42,17 @@ def create_vendor_name(pkg_name: str):
     return f"{pkg_name.replace('-', '_')}_vendor"
 
 def is_gz_library(dep: Dependency):
+    # For the purposes of this tool, ogre-next and dartsim are considered gz libraries,
+    # thus, we'll use vendored versions of those packages.
+    if dep.name in EXTRA_VENDORED_PKGS.keys():
+        return True
     pkg_name_no_version = remove_version(dep.name)
     return pkg_name_no_version in GZ_LIBRARIES
 
 def vendorize_gz_dependency(dep: Dependency):
+    if dep.name in EXTRA_VENDORED_PKGS:
+        dep.name = EXTRA_VENDORED_PKGS[dep.name]
+        return
     pkg_name_no_version = remove_version(dep.name)
     dep.name = create_vendor_name(pkg_name_no_version) 
 
