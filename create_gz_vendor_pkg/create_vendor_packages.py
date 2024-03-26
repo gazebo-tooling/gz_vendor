@@ -96,6 +96,9 @@ def pkg_has_extra_cmake(pkg_name_no_version):
 def pkg_has_dsv(pkg_name_no_version):
     return pkg_name_no_version not in ['gz-tools', 'gz-cmake']
 
+def pkg_has_patches(pkg_name_no_version):
+    return pkg_name_no_version in ['gz-rendering']
+
 def create_vendor_package_xml(src_pkg_xml: Package):
     templates_path = Path(__file__).resolve().parent / "templates"
     jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(templates_path),
@@ -152,13 +155,15 @@ def create_cmake_file(src_pkg_xml: Package):
 
     vendor_has_extra_cmake = pkg_has_extra_cmake(pkg_name_no_version)
     vendor_has_dsv = pkg_has_dsv(pkg_name_no_version)
+    has_patches = pkg_has_patches(pkg_name_no_version)
 
     return template.render(pkg=vendor_pkg_xml, cmake_pkg_name=cmake_pkg_name,
                            github_pkg_name=pkg_name_no_version,
                            vendor_name=vendor_name, gz_vendor_deps=gz_deps,
                            vendor_has_extra_cmake=vendor_has_extra_cmake,
                            vendor_has_dsv=vendor_has_dsv,
-                           version=split_version(vendor_pkg_xml.version))
+                           version=split_version(vendor_pkg_xml.version),
+                           has_patches=has_patches)
 
 def generate_vendor_package_files(package: Package, output_dir):
     output_package_xml = create_vendor_package_xml(package)
