@@ -34,7 +34,10 @@ def main(argv=sys.argv[1:]):
 
     pkg_name_no_version = remove_version(package.name)
     vendor_name = create_vendor_name(pkg_name_no_version)
-    os.mkdir(vendor_name)
+    try:
+        os.mkdir(vendor_name)
+    except FileExistsError:
+        pass
     generate_vendor_package_files(package, os.path.join(vendor_name))
 
     templates_path = Path(__file__).resolve().parent / "templates"
@@ -43,6 +46,7 @@ def main(argv=sys.argv[1:]):
         shutil.copy(templates_path / file, Path(vendor_name) / file)
 
     if pkg_has_extra_cmake(pkg_name_no_version):
+        shutil.copy(templates_path / "config.cmake.in", Path(vendor_name) / f"{pkg_name_no_version}-config.cmake.in")
         shutil.copy(templates_path / "extras.cmake.in", Path(vendor_name) / f"{vendor_name}-extras.cmake.in")
 
     if pkg_has_dsv(pkg_name_no_version):
