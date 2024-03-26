@@ -2,8 +2,8 @@ import argparse
 import sys
 from catkin_pkg.package import parse_package_string
 from create_vendor_packages import (
+    cmake_pkg_name,
     pkg_has_dsv,
-    pkg_has_extra_cmake,
     remove_version, 
     create_vendor_name, 
     generate_vendor_package_files,
@@ -45,9 +45,8 @@ def main(argv=sys.argv[1:]):
     for file in ["LICENSE", "CONTRIBUTING.md"]:
         shutil.copy(templates_path / file, Path(vendor_name) / file)
 
-    if pkg_has_extra_cmake(pkg_name_no_version):
-        shutil.copy(templates_path / "config.cmake.in", Path(vendor_name) / f"{pkg_name_no_version}-config.cmake.in")
-        shutil.copy(templates_path / "extras.cmake.in", Path(vendor_name) / f"{vendor_name}-extras.cmake.in")
+    shutil.copy(templates_path / "config.cmake.in", Path(vendor_name) / f"{cmake_pkg_name(pkg_name_no_version)}-config.cmake.in")
+    shutil.copy(templates_path / "extras.cmake.in", Path(vendor_name) / f"{vendor_name}-extras.cmake.in")
 
     if pkg_has_dsv(pkg_name_no_version):
         shutil.copy(templates_path / "vendor.dsv.in", Path(vendor_name) / f"{vendor_name}.dsv.in")

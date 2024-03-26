@@ -99,6 +99,13 @@ def pkg_has_dsv(pkg_name_no_version):
 def pkg_has_patches(pkg_name_no_version):
     return pkg_name_no_version in ['gz-rendering']
 
+def cmake_pkg_name(pkg_name_no_version):
+    # gz-fuel-tools needs special care as it's cmake package name is different
+    # from its deb package name.
+    if pkg_name_no_version == 'gz-fuel-tools':
+        return 'gz-fuel_tools'
+    return pkg_name_no_version
+
 def create_vendor_package_xml(src_pkg_xml: Package):
     templates_path = Path(__file__).resolve().parent / "templates"
     jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(templates_path),
@@ -147,17 +154,11 @@ def create_cmake_file(src_pkg_xml: Package):
     for dep in gz_deps:
         vendorize_gz_dependency(dep)
 
-    # gz-fuel-tools needs special care as it's cmake package name is different
-    # from its deb package name.
-    cmake_pkg_name = pkg_name_no_version
-    if cmake_pkg_name == 'gz-fuel-tools':
-        cmake_pkg_name = 'gz-fuel_tools'
-
     vendor_has_extra_cmake = pkg_has_extra_cmake(pkg_name_no_version)
     vendor_has_dsv = pkg_has_dsv(pkg_name_no_version)
     has_patches = pkg_has_patches(pkg_name_no_version)
 
-    return template.render(pkg=vendor_pkg_xml, cmake_pkg_name=cmake_pkg_name,
+    return template.render(pkg=vendor_pkg_xml, cmake_pkg_name=cmake_pkg_name(pkg_name_no_version),
                            github_pkg_name=pkg_name_no_version,
                            vendor_name=vendor_name, gz_vendor_deps=gz_deps,
                            vendor_has_extra_cmake=vendor_has_extra_cmake,

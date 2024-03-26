@@ -102,9 +102,7 @@ endif()
 # location: `opt/${PROJECT_NAME}/extra_cmake/` and provide a
 # `{vendor_name}-extras.cmake` file that adds that path to `CMAKE_PREFIX_PATH`.
 ament_package(
-{%- if vendor_has_extra_cmake -%}
   CONFIG_EXTRAS_POST "{{ vendor_name }}-extras.cmake.in"
-{%- endif -%}
 )
 
 include(CMakePackageConfigHelpers)
