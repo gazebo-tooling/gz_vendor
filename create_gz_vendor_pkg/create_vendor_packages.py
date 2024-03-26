@@ -5,6 +5,9 @@ import re
 import copy
 import jinja2
 from pathlib import Path
+import os
+import shutil
+from pathlib import Path
 
 
 GZ_LIBRARIES = [
@@ -202,8 +205,29 @@ def main(argv=sys.argv[1:]):
     finally:
         args.input_package_xml.close()
 
+    pkg_name_no_version = remove_version(package.name)
+    vendor_name = create_vendor_name(pkg_name_no_version)
+
+    if not args.output_dir:
+        args.output_dir = vendor_name
+
+    try:
+        os.mkdir(args.output_dir)
+    except FileExistsError:
+        pass
+
     generate_vendor_package_files(package, args.output_dir)
 
+    templates_path = Path(__file__).resolve().parent / "templates"
+    # Copy other files
+    for file in ["LICENSE", "CONTRIBUTING.md"]:
+        shutil.copy(templates_path / file, Path(args.output_dir) / file)
+
+    shutil.copy(templates_path / "config.cmake.in", Path(args.output_dir) / f"{cmake_pkg_name(pkg_name_no_version)}-config.cmake.in")
+    shutil.copy(templates_path / "extras.cmake.in", Path(args.output_dir) / f"{vendor_name}-extras.cmake.in")
+
+    if pkg_has_dsv(pkg_name_no_version):
+        shutil.copy(templates_path / "vendor.dsv.in", Path(args.output_dir) / f"{vendor_name}.dsv.in")
 
 if __name__ == "__main__":
     main()
