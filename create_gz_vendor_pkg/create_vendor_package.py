@@ -1,13 +1,12 @@
 import argparse
 import sys
-from catkin_pkg.package import Dependency, parse_package_string, Package
+from catkin_pkg.package import Dependency, InvalidPackage, parse_package, parse_package_string, Package
 import re
 import copy
 import jinja2
 from pathlib import Path
 import os
 import shutil
-from pathlib import Path
 
 
 GZ_LIBRARIES = [
@@ -100,7 +99,13 @@ def pkg_has_dsv(pkg_name_no_version):
     return pkg_name_no_version not in ['gz-tools', 'gz-cmake']
 
 def pkg_has_patches(pkg_name_no_version):
-    return pkg_name_no_version in ['gz-rendering']
+    return pkg_name_no_version in ['gz-cmake', 'gz-rendering']
+
+def pkg_has_swig(pkg_name_no_version):
+    return pkg_name_no_version in ['gz-math']
+
+def pkg_has_pybind11(pkg_name_no_version):
+    return pkg_name_no_version in ['gz-math', 'sdformat', 'gz-transport', 'gz-sim']
 
 def cmake_pkg_name(pkg_name_no_version):
     # gz-fuel-tools needs special care as it's cmake package name is different
@@ -109,16 +114,19 @@ def cmake_pkg_name(pkg_name_no_version):
         return 'gz-fuel_tools'
     return pkg_name_no_version
 
-def create_vendor_package_xml(src_pkg_xml: Package):
+def create_vendor_package_xml(src_pkg_xml: Package, existing_package: Package | None):
     templates_path = Path(__file__).resolve().parent / "templates"
     jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(templates_path),
                                    trim_blocks=True, lstrip_blocks=True,
                                    keep_trailing_newline=True)
     template = jinja_env.get_template("package.xml.jinja")
+    params = {}
     vendor_pkg_xml = copy.deepcopy(src_pkg_xml)
 
+    params['pkg'] = vendor_pkg_xml
+
     pkg_name_no_version = remove_version(vendor_pkg_xml.name)
-    vendor_name = create_vendor_name(pkg_name_no_version)
+    params['vendor_name'] = create_vendor_name(pkg_name_no_version)
 
     # The gazebo dependencies need to be vendored and we need to use `<depend>`
     # on each dependency regardless of whether it's a build or exec dependency
@@ -132,7 +140,11 @@ def create_vendor_package_xml(src_pkg_xml: Package):
     for dep in gz_deps:
         vendorize_gz_dependency(dep)
 
-    return template.render(pkg=vendor_pkg_xml, vendor_name=vendor_name, gz_vendor_deps=gz_deps)
+    params['gz_vendor_deps'] = gz_deps
+
+    params['vendor_pkg_version'] = existing_package.version if existing_package is not None else "0.0.1"
+
+    return template.render(params)
 
 def create_cmake_file(src_pkg_xml: Package):
     templates_path = Path(__file__).resolve().parent / "templates"
@@ -140,10 +152,14 @@ def create_cmake_file(src_pkg_xml: Package):
                                    trim_blocks=True, lstrip_blocks=True,
                                    keep_trailing_newline=True)
     template = jinja_env.get_template("CMakeLists.txt.jinja")
+    params = {}
     vendor_pkg_xml = copy.deepcopy(src_pkg_xml)
+    params['pkg'] = vendor_pkg_xml
 
     pkg_name_no_version = remove_version(vendor_pkg_xml.name)
-    vendor_name = create_vendor_name(pkg_name_no_version)
+    params['github_pkg_name'] = pkg_name_no_version
+    params['vendor_name'] = create_vendor_name(pkg_name_no_version)
+    params['cmake_pkg_name']=cmake_pkg_name(pkg_name_no_version)
 
     # The gazebo dependencies need to be vendored and we need to use `<depend>`
     # on each dependency regardless of whether it's a build or exec dependency
@@ -152,25 +168,26 @@ def create_cmake_file(src_pkg_xml: Package):
     gz_test_deps, _ = separate_gz_deps(vendor_pkg_xml.test_depends)
     gz_doc_deps, _ = separate_gz_deps(vendor_pkg_xml.doc_depends)
 
-    gz_deps = stable_unique(gz_build_deps + gz_exec_deps + gz_test_deps + gz_doc_deps)
+    params['gz_vendor_deps'] = stable_unique(gz_build_deps + gz_exec_deps + gz_test_deps + gz_doc_deps)
 
-    for dep in gz_deps:
+    for dep in params['gz_vendor_deps']:
         vendorize_gz_dependency(dep)
 
-    vendor_has_extra_cmake = pkg_has_extra_cmake(pkg_name_no_version)
-    vendor_has_dsv = pkg_has_dsv(pkg_name_no_version)
-    has_patches = pkg_has_patches(pkg_name_no_version)
+    params['vendor_has_extra_cmake'] = pkg_has_extra_cmake(pkg_name_no_version)
+    params['vendor_has_dsv'] = pkg_has_dsv(pkg_name_no_version)
+    params['has_patches'] = pkg_has_patches(pkg_name_no_version)
+    params['version']=split_version(vendor_pkg_xml.version)
 
-    return template.render(pkg=vendor_pkg_xml, cmake_pkg_name=cmake_pkg_name(pkg_name_no_version),
-                           github_pkg_name=pkg_name_no_version,
-                           vendor_name=vendor_name, gz_vendor_deps=gz_deps,
-                           vendor_has_extra_cmake=vendor_has_extra_cmake,
-                           vendor_has_dsv=vendor_has_dsv,
-                           version=split_version(vendor_pkg_xml.version),
-                           has_patches=has_patches)
+    params['cmake_args'] = ['-DBUILD_DOCS:BOOL=OFF']
 
-def generate_vendor_package_files(package: Package, output_dir):
-    output_package_xml = create_vendor_package_xml(package)
+    if pkg_has_pybind11(pkg_name_no_version):
+        params['cmake_args'].append('-DSKIP_PYBIND11:BOOL=ON')
+    if pkg_has_swig(pkg_name_no_version):
+        params['cmake_args'].append('-DSKIP_SWIG:BOOL=ON')
+    return template.render(params)
+
+def generate_vendor_package_files(package: Package, existing_package: Package | None, output_dir):
+    output_package_xml = create_vendor_package_xml(package, existing_package)
     output_cmake = create_cmake_file(package)
     if output_dir :
         with open(Path(output_dir) / "package.xml", 'w') as f:
@@ -216,7 +233,14 @@ def main(argv=sys.argv[1:]):
     except FileExistsError:
         pass
 
-    generate_vendor_package_files(package, args.output_dir)
+    existing_package_path = Path(args.output_dir) / "package.xml"
+    try:
+        existing_package = parse_package(existing_package_path)
+    except InvalidPackage as e:
+        print(f"Error parsing '{existing_package_path}")
+        raise e
+
+    generate_vendor_package_files(package, existing_package, args.output_dir)
 
     templates_path = Path(__file__).resolve().parent / "templates"
     # Copy other files

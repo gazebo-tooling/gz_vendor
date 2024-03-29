@@ -52,7 +52,9 @@ ament_vendor(${LIB_NAME_UNDERSCORE}_vendor
   VCS_URL https://github.com/gazebosim/${GITHUB_NAME}.git
   VCS_VERSION ${GITHUB_NAME}${LIB_VER_MAJOR}_${LIB_VER}
   CMAKE_ARGS
-    -DBUILD_DOCS:BOOL=OFF
+{% for arg in cmake_args %}
+    {{ arg }}
+{% endfor %}
   GLOBAL_HOOK
   {% if has_patches %}
   PATCHES patches
