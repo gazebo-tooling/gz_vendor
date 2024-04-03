@@ -51,10 +51,12 @@ ament_vendor(${LIB_NAME_UNDERSCORE}_vendor
   SATISFIED ${${LIB_NAME_FULL}_FOUND}
   VCS_URL https://github.com/gazebosim/${GITHUB_NAME}.git
   VCS_VERSION ${GITHUB_NAME}${LIB_VER_MAJOR}_${LIB_VER}
+{% if cmake_args %}
   CMAKE_ARGS
-{% for arg in cmake_args %}
+  {% for arg in cmake_args %}
     {{ arg }}
-{% endfor %}
+  {% endfor %}
+{%- endif %}
   GLOBAL_HOOK
   {% if has_patches %}
   PATCHES patches

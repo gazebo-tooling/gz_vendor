@@ -107,6 +107,9 @@ def pkg_has_swig(pkg_name_no_version):
 def pkg_has_pybind11(pkg_name_no_version):
     return pkg_name_no_version in ['gz-math', 'sdformat', 'gz-transport', 'gz-sim']
 
+def pkg_has_docs(pkg_name_no_version):
+    return pkg_name_no_version not in ['sdformat']
+
 def cmake_pkg_name(pkg_name_no_version):
     # gz-fuel-tools needs special care as it's cmake package name is different
     # from its deb package name.
@@ -178,7 +181,9 @@ def create_cmake_file(src_pkg_xml: Package):
     params['has_patches'] = pkg_has_patches(pkg_name_no_version)
     params['version']=split_version(vendor_pkg_xml.version)
 
-    params['cmake_args'] = ['-DBUILD_DOCS:BOOL=OFF']
+    params['cmake_args'] = []
+    if pkg_has_docs(pkg_name_no_version):
+        params['cmake_args'] = ['-DBUILD_DOCS:BOOL=OFF']
 
     if pkg_has_pybind11(pkg_name_no_version):
         params['cmake_args'].append('-DSKIP_PYBIND11:BOOL=ON')
