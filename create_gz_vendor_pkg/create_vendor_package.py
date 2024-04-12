@@ -34,6 +34,33 @@ EXTRA_VENDORED_PKGS = {
     'libogre-next-2.3': 'gz_ogre_next_vendor',
 }
 
+# These dependencies will be removed from the package.xml provided by the upstream Gazebo library
+DEPENDENCY_DISALLOW_LIST = [
+    # python3-distutiol is not needed for CMake > 3.12. Also, it is currently failing to install on Noble
+    'python3-distutils',
+]
+
+# These were taken from catkin_pkg's package.py file
+DEPENDENCY_TYPES = [
+    'build_depends',
+    'buildtool_depends',
+    'build_export_depends',
+    'buildtool_export_depends',
+    'exec_depends',
+    'test_depends',
+    'doc_depends',
+]
+
+def filter_dependencies(package: Package):
+
+    def filter_impl(deps):
+        return [dep for dep in deps if dep.name not in DEPENDENCY_DISALLOW_LIST]
+
+    for dep_type in DEPENDENCY_TYPES:
+        setattr(package, dep_type, filter_impl(getattr(package, dep_type)))
+
+    return package
+
 def remove_version(pkg_name: str):
     pkg_name_no_version = re.match('[-_a-z]*', pkg_name)
     if not pkg_name_no_version:
@@ -117,6 +144,7 @@ def cmake_pkg_name(pkg_name_no_version):
         return 'gz-fuel_tools'
     return pkg_name_no_version
 
+
 def create_vendor_package_xml(src_pkg_xml: Package, existing_package: Package | None):
     templates_path = Path(__file__).resolve().parent / "templates"
     jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(templates_path),
@@ -192,8 +220,9 @@ def create_cmake_file(src_pkg_xml: Package):
     return template.render(params)
 
 def generate_vendor_package_files(package: Package, existing_package: Package | None, output_dir):
-    output_package_xml = create_vendor_package_xml(package, existing_package)
-    output_cmake = create_cmake_file(package)
+    filtered_package = filter_dependencies(package)
+    output_package_xml = create_vendor_package_xml(filtered_package , existing_package)
+    output_cmake = create_cmake_file(filtered_package)
     if output_dir :
         with open(Path(output_dir) / "package.xml", 'w') as f:
             f.write(output_package_xml)
