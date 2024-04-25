@@ -21,5 +21,4 @@ foreach(component ${components})
 endforeach()
 
 # Add a root gz-lib alias
-add_library(@LIB_NAME_COMP_PREFIX@ INTERFACE IMPORTED)
-target_link_libraries(@LIB_NAME_COMP_PREFIX@ INTERFACE @LIB_NAME_COMP_PREFIX@::@LIB_NAME_COMP_PREFIX@)
+add_library(@LIB_NAME_COMP_PREFIX@ ALIAS @LIB_NAME@@LIB_VER_MAJOR@::@LIB_NAME@@LIB_VER_MAJOR@)
