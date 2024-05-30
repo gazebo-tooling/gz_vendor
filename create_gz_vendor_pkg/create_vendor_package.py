@@ -15,10 +15,11 @@ import os
 import shutil
 
 
+# These are the names of the libraries as they appear in package.xml files.
 GZ_LIBRARIES = [
     "gz-cmake",
     "gz-common",
-    "gz-fuel-tools",
+    "gz-fuel_tools",
     "gz-gui",
     "gz-launch",
     "gz-math",
@@ -36,6 +37,7 @@ GZ_LIBRARIES = [
 
 EXTRA_VENDORED_PKGS = {
     "dartsim": "gz_dartsim_vendor",
+    "DART": "gz_dartsim_vendor",
     "libogre-next-2.3-dev": "gz_ogre_next_vendor",
     "libogre-next-2.3": "gz_ogre_next_vendor",
 }
@@ -167,6 +169,13 @@ def cmake_pkg_name(pkg_name_no_version):
     return pkg_name_no_version
 
 
+def github_pkg_name(pkg_name_no_version):
+    # gz-fuel-tools needs special care as github name is different from its package.xml name
+    if pkg_name_no_version == "gz-fuel_tools":
+        return "gz-fuel-tools"
+    return pkg_name_no_version
+
+
 def separate_and_vendorize_gz_deps(src_pkg_xml: Package):
     vendor_pkg_xml = copy.deepcopy(src_pkg_xml)
     # The gazebo dependencies need to be vendored and we need to use `<depend>`
@@ -233,7 +242,7 @@ def create_cmake_file(src_pkg_xml: Package):
     )
 
     pkg_name_no_version = remove_version(params["pkg"].name)
-    params["github_pkg_name"] = pkg_name_no_version
+    params["github_pkg_name"] = github_pkg_name(pkg_name_no_version)
     params["vendor_name"] = create_vendor_name(pkg_name_no_version)
     params["cmake_pkg_name"] = cmake_pkg_name(pkg_name_no_version)
 
