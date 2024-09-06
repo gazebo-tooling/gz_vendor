@@ -62,6 +62,15 @@ DEPENDENCY_TYPES = [
 ]
 
 
+def parse_version_suffix(cmake_file_path: Path):
+    with open(cmake_file_path, 'r') as f_cmake:
+        cmake_file = f_cmake.read()
+        match = re.search(r".*VERSION_SUFFIX.* (pre\d*)", cmake_file, re.MULTILINE)
+        if match:
+            return f"-{match.group(1)}"
+        else:
+            return ""
+
 def filter_dependencies(package: Package):
 
     def filter_impl(deps):
@@ -203,7 +212,7 @@ def separate_and_vendorize_gz_deps(src_pkg_xml: Package):
     return gz_deps, vendor_pkg_xml
 
 
-def create_vendor_package_xml(src_pkg_xml: Package, existing_package: Package | None):
+def create_vendor_package_xml(src_pkg_xml: Package, existing_package: Package | None, extra_params: dict):
     templates_path = Path(__file__).resolve().parent / "templates"
     jinja_env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(templates_path),
@@ -213,6 +222,7 @@ def create_vendor_package_xml(src_pkg_xml: Package, existing_package: Package | 
     )
     template = jinja_env.get_template("package.xml.jinja")
     params = {}
+    params.update(extra_params)
 
     params["gz_vendor_deps"], params["pkg"] = separate_and_vendorize_gz_deps(
         src_pkg_xml
@@ -228,7 +238,7 @@ def create_vendor_package_xml(src_pkg_xml: Package, existing_package: Package | 
     return template.render(params)
 
 
-def create_cmake_file(src_pkg_xml: Package):
+def create_cmake_file(src_pkg_xml: Package, extra_params: dict):
     templates_path = Path(__file__).resolve().parent / "templates"
     jinja_env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(templates_path),
@@ -238,6 +248,7 @@ def create_cmake_file(src_pkg_xml: Package):
     )
     template = jinja_env.get_template("CMakeLists.txt.jinja")
     params = {}
+    params.update(extra_params)
 
     params["gz_vendor_deps"], params["pkg"] = separate_and_vendorize_gz_deps(
         src_pkg_xml
@@ -265,11 +276,11 @@ def create_cmake_file(src_pkg_xml: Package):
 
 
 def generate_vendor_package_files(
-    package: Package, existing_package: Package | None, output_dir
+        package: Package, existing_package: Package | None, output_dir, params: dict
 ):
     filtered_package = filter_dependencies(package)
-    output_package_xml = create_vendor_package_xml(filtered_package, existing_package)
-    output_cmake = create_cmake_file(filtered_package)
+    output_package_xml = create_vendor_package_xml(filtered_package, existing_package, params)
+    output_cmake = create_cmake_file(filtered_package, params)
     if output_dir:
         with open(Path(output_dir) / "package.xml", "w") as f:
             f.write(output_package_xml)
@@ -294,6 +305,11 @@ def main(argv=sys.argv[1:]):
         type=argparse.FileType("r", encoding="utf-8"),
         help="The path to a package.xml file",
     )
+    parser.add_argument(
+        "--suffix_from_cmake",
+        action="store_true",
+        help="Get version suffix from provided CMakeLists.txt file"
+    )
     args = parser.parse_args(argv)
     try:
         package = parse_package_string(
@@ -304,6 +320,11 @@ def main(argv=sys.argv[1:]):
         raise e
     finally:
         args.input_package_xml.close()
+
+    params = { "version_suffix": "" }
+    if args.suffix_from_cmake:
+        cmake_file_path = Path(args.input_package_xml.name).parent / 'CMakeLists.txt'
+        params["version_suffix"] = parse_version_suffix(cmake_file_path)
 
     pkg_name_no_version = remove_version(package.name)
     vendor_name = create_vendor_name(pkg_name_no_version)
@@ -323,7 +344,7 @@ def main(argv=sys.argv[1:]):
         print(f"Error parsing '{existing_package_path}")
         raise e
 
-    generate_vendor_package_files(package, existing_package, args.output_dir)
+    generate_vendor_package_files(package, existing_package, args.output_dir, params)
 
     templates_path = Path(__file__).resolve().parent / "templates"
     # Copy other files
