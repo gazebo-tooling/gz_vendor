@@ -46,7 +46,7 @@ EXTRA_VENDORED_PKGS = {
 
 # These dependencies will be removed from the package.xml provided by the upstream Gazebo library
 DEPENDENCY_DISALLOW_LIST = [
-    # python3-distutiol is not needed for CMake > 3.12. Also, it is currently failing to install on Noble
+    # python3-distutio is not needed for CMake > 3.12. Also, it is currently failing to install on Noble
     "python3-distutils",
 ]
 
@@ -62,14 +62,16 @@ DEPENDENCY_TYPES = [
 ]
 
 
+
 def parse_version_suffix(cmake_file_path: Path):
-    with open(cmake_file_path, 'r') as f_cmake:
+    with open(cmake_file_path, "r") as f_cmake:
         cmake_file = f_cmake.read()
         match = re.search(r".*VERSION_SUFFIX.* (pre\d*)", cmake_file, re.MULTILINE)
         if match:
             return f"-{match.group(1)}"
         else:
             return ""
+
 
 def filter_dependencies(package: Package):
 
@@ -82,11 +84,35 @@ def filter_dependencies(package: Package):
     return package
 
 
-def remove_version(pkg_name: str):
-    pkg_name_no_version = re.match("[-_a-z]*", pkg_name)
+def remove_version(pkg_name: str, return_version: bool = False):
+    pkg_name_no_version = re.match(r"([-_a-z]*)(\d*)", pkg_name)
     if not pkg_name_no_version:
         raise RuntimeError("Could not parse package name")
-    return pkg_name_no_version.group(0)
+    if return_version:
+        return pkg_name_no_version.group(1, 2)
+    return pkg_name_no_version.group(1)
+
+
+def build_docs_deprecated(package: Package):
+    """
+    The CMake argument -DBUILD_DOCS was deprecated in Ionic.
+    To determine this we check if the package itself is gz-cmake4
+    or depends on gz-cmake4 or later.
+
+    :param package: The Package data structure parsed from the
+        source/upstream package.xml
+    """
+    def is_gz_cmake4(name):
+        pkg_name, pkg_version = remove_version(name, return_version=True)
+        return pkg_name == "gz-cmake" and int(pkg_version) >= 4
+
+    if is_gz_cmake4(package.name):
+        return True
+    else:
+        for dep in package.build_depends:
+            if is_gz_cmake4(dep.name):
+                return True
+    return False
 
 
 def create_vendor_name(pkg_name: str):
@@ -212,7 +238,9 @@ def separate_and_vendorize_gz_deps(src_pkg_xml: Package):
     return gz_deps, vendor_pkg_xml
 
 
-def create_vendor_package_xml(src_pkg_xml: Package, existing_package: Package | None, extra_params: dict):
+def create_vendor_package_xml(
+    src_pkg_xml: Package, existing_package: Package | None, extra_params: dict
+):
     templates_path = Path(__file__).resolve().parent / "templates"
     jinja_env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(templates_path),
@@ -265,7 +293,7 @@ def create_cmake_file(src_pkg_xml: Package, extra_params: dict):
     params["version"] = split_version(params["pkg"].version)
 
     params["cmake_args"] = []
-    if pkg_has_docs(pkg_name_no_version):
+    if pkg_has_docs(pkg_name_no_version) and not build_docs_deprecated(src_pkg_xml):
         params["cmake_args"] = ["-DBUILD_DOCS:BOOL=OFF"]
 
     if pkg_has_pybind11(pkg_name_no_version):
@@ -276,10 +304,12 @@ def create_cmake_file(src_pkg_xml: Package, extra_params: dict):
 
 
 def generate_vendor_package_files(
-        package: Package, existing_package: Package | None, output_dir, params: dict
+    package: Package, existing_package: Package | None, output_dir, params: dict
 ):
     filtered_package = filter_dependencies(package)
-    output_package_xml = create_vendor_package_xml(filtered_package, existing_package, params)
+    output_package_xml = create_vendor_package_xml(
+        filtered_package, existing_package, params
+    )
     output_cmake = create_cmake_file(filtered_package, params)
     if output_dir:
         with open(Path(output_dir) / "package.xml", "w") as f:
@@ -308,7 +338,7 @@ def main(argv=sys.argv[1:]):
     parser.add_argument(
         "--suffix_from_cmake",
         action="store_true",
-        help="Get version suffix from provided CMakeLists.txt file"
+        help="Get version suffix from provided CMakeLists.txt file",
     )
     args = parser.parse_args(argv)
     try:
@@ -321,9 +351,9 @@ def main(argv=sys.argv[1:]):
     finally:
         args.input_package_xml.close()
 
-    params = { "version_suffix": "" }
+    params = {"version_suffix": ""}
     if args.suffix_from_cmake:
-        cmake_file_path = Path(args.input_package_xml.name).parent / 'CMakeLists.txt'
+        cmake_file_path = Path(args.input_package_xml.name).parent / "CMakeLists.txt"
         params["version_suffix"] = parse_version_suffix(cmake_file_path)
 
     pkg_name_no_version = remove_version(package.name)
