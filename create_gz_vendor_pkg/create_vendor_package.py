@@ -62,7 +62,6 @@ DEPENDENCY_TYPES = [
 ]
 
 
-
 def parse_version_suffix(cmake_file_path: Path):
     with open(cmake_file_path, "r") as f_cmake:
         cmake_file = f_cmake.read()
@@ -102,6 +101,7 @@ def build_docs_deprecated(package: Package):
     :param package: The Package data structure parsed from the
         source/upstream package.xml
     """
+
     def is_gz_cmake4(name):
         pkg_name, pkg_version = remove_version(name, return_version=True)
         return pkg_name == "gz-cmake" and int(pkg_version) >= 4
