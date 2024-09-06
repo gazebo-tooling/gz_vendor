@@ -46,7 +46,7 @@ EXTRA_VENDORED_PKGS = {
 
 # These dependencies will be removed from the package.xml provided by the upstream Gazebo library
 DEPENDENCY_DISALLOW_LIST = [
-    # python3-distutio is not needed for CMake > 3.12. Also, it is currently failing to install on Noble
+    # python3-distutils is not needed for CMake > 3.12. Also, it is currently failing to install on Noble
     "python3-distutils",
 ]
 
