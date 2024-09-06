@@ -42,6 +42,7 @@ EXTRA_VENDORED_PKGS = {
     "DART": "gz_dartsim_vendor",
     "libogre-next-2.3-dev": "gz_ogre_next_vendor",
     "libogre-next-2.3": "gz_ogre_next_vendor",
+    "spdlog": "spdlog_vendor",
 }
 
 # These dependencies will be removed from the package.xml provided by the upstream Gazebo library
