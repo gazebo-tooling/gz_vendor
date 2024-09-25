@@ -183,8 +183,10 @@ def pkg_has_dsv(pkg_name_no_version):
     return pkg_name_no_version not in ["gz-tools", "gz-cmake"]
 
 
-def pkg_has_patches(pkg_name_no_version):
-    return pkg_name_no_version in ["gz-cmake", "gz-rendering"]
+def pkg_has_patches(pkg_name_no_version, pkg_version):
+    if pkg_name_no_version == "gz-cmake" and int(pkg_version) < 4:
+        return True
+    return pkg_name_no_version in ["gz-rendering"]
 
 
 def pkg_has_swig(pkg_name_no_version):
@@ -283,14 +285,14 @@ def create_cmake_file(src_pkg_xml: Package, extra_params: dict):
         src_pkg_xml
     )
 
-    pkg_name_no_version = remove_version(params["pkg"].name)
+    pkg_name_no_version, pkg_version = remove_version(params["pkg"].name, return_version=True)
     params["github_pkg_name"] = github_pkg_name(pkg_name_no_version)
     params["vendor_name"] = create_vendor_name(pkg_name_no_version)
     params["cmake_pkg_name"] = cmake_pkg_name(pkg_name_no_version)
 
     params["vendor_has_extra_cmake"] = pkg_has_extra_cmake(pkg_name_no_version)
     params["vendor_has_dsv"] = pkg_has_dsv(pkg_name_no_version)
-    params["has_patches"] = pkg_has_patches(pkg_name_no_version)
+    params["has_patches"] = pkg_has_patches(pkg_name_no_version, pkg_version)
     params["version"] = split_version(params["pkg"].version)
 
     params["cmake_args"] = []
@@ -341,6 +343,13 @@ def main(argv=sys.argv[1:]):
         action="store_true",
         help="Get version suffix from provided CMakeLists.txt file",
     )
+
+    parser.add_argument(
+        "--overwrite_cmake_configs",
+        action="store_true",
+        default=False,
+        help="If true, overwrites cmake config (.in) files",
+    )
     args = parser.parse_args(argv)
     try:
         package = parse_package_string(
@@ -382,21 +391,22 @@ def main(argv=sys.argv[1:]):
     for file in ["LICENSE", "CONTRIBUTING.md"]:
         shutil.copy(templates_path / file, Path(args.output_dir) / file)
 
-    shutil.copy(
-        templates_path / "config.cmake.in",
-        Path(args.output_dir)
-        / f"{cmake_pkg_name(pkg_name_no_version)}-config.cmake.in",
-    )
-    shutil.copy(
-        templates_path / "extras.cmake.in",
-        Path(args.output_dir) / f"{vendor_name}-extras.cmake.in",
-    )
-
-    if pkg_has_dsv(pkg_name_no_version):
+    if args.overwrite_cmake_configs:
         shutil.copy(
-            templates_path / "vendor.dsv.in",
-            Path(args.output_dir) / f"{vendor_name}.dsv.in",
+            templates_path / "config.cmake.in",
+            Path(args.output_dir)
+            / f"{cmake_pkg_name(pkg_name_no_version)}-config.cmake.in",
         )
+        shutil.copy(
+            templates_path / "extras.cmake.in",
+            Path(args.output_dir) / f"{vendor_name}-extras.cmake.in",
+        )
+
+        if pkg_has_dsv(pkg_name_no_version):
+            shutil.copy(
+                templates_path / "vendor.dsv.in",
+                Path(args.output_dir) / f"{vendor_name}.dsv.in",
+            )
 
 
 if __name__ == "__main__":
