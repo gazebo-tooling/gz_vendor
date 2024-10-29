@@ -31,6 +31,9 @@
   <buildtool_depend>ament_cmake_test</buildtool_depend>
   <buildtool_depend>ament_cmake_vendor_package</buildtool_depend>
 
+  {% for dep in pkg.buildtool_depends %}
+  <buildtool_depend>{{ dep.name }}</buildtool_depend>
+  {% endfor %}
   {% for dep in pkg.build_depends %}
   <build_depend>{{ dep.name }}</build_depend>
   {% endfor %}
