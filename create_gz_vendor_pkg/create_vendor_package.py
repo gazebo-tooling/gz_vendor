@@ -49,6 +49,10 @@ EXTRA_VENDORED_PKGS = {
 DEPENDENCY_DISALLOW_LIST = [
     # python3-distutils is not needed for CMake > 3.12. Also, it is currently failing to install on Noble
     "python3-distutils",
+    # rubocop is only needed for tests/linting which we don't need for vendor packages.
+    # It's also not available on RHEL, which prevents all vendor packages that depend
+    # on gz-tools from being released on RHEL.
+    "rubocop",
 ]
 
 # These were taken from catkin_pkg's package.py file
