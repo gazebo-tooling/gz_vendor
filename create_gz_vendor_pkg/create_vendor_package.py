@@ -45,6 +45,14 @@ EXTRA_VENDORED_PKGS = {
     "spdlog": "spdlog_vendor",
 }
 
+# Some packages have better alternatives in the ROS ecosystem or use
+# vendored versions when built in the ROS buildfarm.
+# The keys in this dictionary are the packages in the original package.xml
+# and the values are used as replacements.
+PACKAGE_REPLACEMENTS = {
+    "liburdfdom-dev": "urdfdom",
+}
+
 # These dependencies will be removed from the package.xml provided by the upstream Gazebo library
 DEPENDENCY_DISALLOW_LIST = [
     # python3-distutils is not needed for CMake > 3.12. Also, it is currently failing to install on Noble
@@ -140,7 +148,6 @@ def vendorize_gz_dependency(dep: Dependency):
     pkg_name_no_version = remove_version(dep.name)
     dep.name = create_vendor_name(pkg_name_no_version)
 
-
 def separate_gz_deps(deps):
     gz_deps = []
     non_gz_deps = []
@@ -222,6 +229,11 @@ def github_pkg_name(pkg_name_no_version):
 
 def separate_and_vendorize_gz_deps(src_pkg_xml: Package):
     vendor_pkg_xml = copy.deepcopy(src_pkg_xml)
+
+    for dep_type in DEPENDENCY_TYPES:
+        for dep in getattr(vendor_pkg_xml, dep_type):
+            dep.name = PACKAGE_REPLACEMENTS.get(dep.name, dep.name)
+
     # The gazebo dependencies need to be vendored and we need to use `<depend>`
     # on each dependency regardless of whether it's a build or exec dependency
     gz_build_deps, vendor_pkg_xml.build_depends = separate_gz_deps(
