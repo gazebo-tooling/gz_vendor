@@ -315,8 +315,6 @@ def create_cmake_file(src_pkg_xml: Package, extra_params: dict):
     if pkg_has_docs(pkg_name_no_version) and not build_docs_deprecated(src_pkg_xml):
         params["cmake_args"] = ["-DBUILD_DOCS:BOOL=OFF"]
 
-    if pkg_has_pybind11(pkg_name_no_version):
-        params["cmake_args"].append("-DSKIP_PYBIND11:BOOL=ON")
     if pkg_has_swig(pkg_name_no_version):
         params["cmake_args"].append("-DSKIP_SWIG:BOOL=ON")
     return template.render(params)
