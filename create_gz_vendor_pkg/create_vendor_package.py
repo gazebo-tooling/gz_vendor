@@ -168,6 +168,15 @@ def split_version(version: str):
     return {"major": new_version[0], "minor": new_version[1], "patch": new_version[2]}
 
 
+def get_default_lib_vcs_ref(pkg_name: str):
+    # Returns the branch name used in the latest Gazebo release
+    # Jetty still uses gz-tools2
+    if pkg_name in ["gz-tools2"]:
+        return pkg_name
+    # All other Jetty branches are main
+    return "main"
+
+
 def get_lib_designator(pkg_name: str):
     gz_match = re.match(r"gz-(.*)", pkg_name)
     if gz_match:
@@ -300,6 +309,7 @@ def create_cmake_file(src_pkg_xml: Package, extra_params: dict):
     params["gz_vendor_deps"], params["pkg"] = separate_and_vendorize_gz_deps(
         src_pkg_xml
     )
+    params["default_lib_vcs_ref"] = get_default_lib_vcs_ref(params["pkg"].name)
 
     pkg_name_no_version, pkg_version = remove_version(params["pkg"].name, return_version=True)
     params["github_pkg_name"] = github_pkg_name(pkg_name_no_version)

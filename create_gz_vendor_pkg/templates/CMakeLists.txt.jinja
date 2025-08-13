@@ -24,7 +24,7 @@ if(NOT VENDOR_FROM_LIB_VCS_REF)
 elseif(LIB_VCS_REF)
   set(LIB_VCS_VER ${LIB_VCS_REF})
 else()
-  set(LIB_VCS_VER main)
+  set(LIB_VCS_VER {{ default_lib_vcs_ref }})
 endif()
 
 find_package(ament_cmake_core REQUIRED)
