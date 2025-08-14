@@ -393,7 +393,7 @@ def main(argv=sys.argv[1:]):
     except FileExistsError:
         pass
 
-    # Check if there is a package.xml in the output directory. If so, we are updating ane existing vendor package
+    # Check if there is a package.xml in the output directory. If so, we are updating an existing vendor package
     existing_package = None
     existing_package_path = Path(args.output_dir) / "package.xml"
     if existing_package_path.exists():
