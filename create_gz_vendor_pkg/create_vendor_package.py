@@ -325,8 +325,6 @@ def create_cmake_file(src_pkg_xml: Package, extra_params: dict):
     if pkg_has_docs(pkg_name_no_version) and not build_docs_deprecated(src_pkg_xml):
         params["cmake_args"] = ["-DBUILD_DOCS:BOOL=OFF"]
 
-    if pkg_has_pybind11(pkg_name_no_version):
-        params["cmake_args"].append("-DSKIP_PYBIND11:BOOL=ON")
     if pkg_has_swig(pkg_name_no_version):
         params["cmake_args"].append("-DSKIP_SWIG:BOOL=ON")
     return template.render(params)
@@ -374,7 +372,7 @@ def main(argv=sys.argv[1:]):
         "--overwrite_cmake_configs",
         action="store_true",
         default=False,
-        help="If true, overwrites cmake config (.in) files",
+        help="If true, overwrites cmake config (.in) and dsv files",
     )
     args = parser.parse_args(argv)
     try:
@@ -421,16 +419,6 @@ def main(argv=sys.argv[1:]):
         shutil.copy(templates_path / file, Path(args.output_dir) / file)
 
     if args.overwrite_cmake_configs:
-        shutil.copy(
-            templates_path / "config.cmake.in",
-            Path(args.output_dir)
-            / f"{cmake_pkg_name(pkg_name_no_version)}-config.cmake.in",
-        )
-        shutil.copy(
-            templates_path / "extras.cmake.in",
-            Path(args.output_dir) / f"{vendor_name}-extras.cmake.in",
-        )
-
         if pkg_has_dsv(pkg_name_no_version):
             shutil.copy(
                 templates_path / "vendor.dsv.in",
