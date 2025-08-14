@@ -393,12 +393,15 @@ def main(argv=sys.argv[1:]):
     except FileExistsError:
         pass
 
+    # Check if there is a package.xml in the output directory. If so, we are updating an existing vendor package
+    existing_package = None
     existing_package_path = Path(args.output_dir) / "package.xml"
-    try:
-        existing_package = parse_package(existing_package_path)
-    except InvalidPackage as e:
-        print(f"Error parsing '{existing_package_path}")
-        raise e
+    if existing_package_path.exists():
+        try:
+            existing_package = parse_package(existing_package_path)
+        except InvalidPackage as e:
+            print(f"Error parsing '{existing_package_path}")
+            raise e
 
     generate_vendor_package_files(package, existing_package, args.output_dir, params)
 
