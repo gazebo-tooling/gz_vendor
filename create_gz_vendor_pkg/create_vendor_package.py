@@ -222,7 +222,7 @@ def pkg_has_docs(pkg_name_no_version):
 
 
 def cmake_pkg_name(pkg_name_no_version):
-    # gz-fuel-tools needs special care as it's cmake package name is different
+    # gz-fuel-tools needs special care as its cmake package name is different
     # from its deb package name.
     if pkg_name_no_version == "gz-fuel-tools":
         return "gz-fuel_tools"
@@ -230,7 +230,7 @@ def cmake_pkg_name(pkg_name_no_version):
 
 
 def cmake_pkg_name_full(pkg_name):
-    # gz-fuel-tools needs special care as it's cmake package name is different
+    # gz-fuel-tools needs special care as its cmake package name is different
     # from its deb package name.
     if pkg_name.startswith("gz-fuel-tools"):
         return pkg_name.replace("fuel-tools", "fuel_tools")
