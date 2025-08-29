@@ -334,7 +334,7 @@ def create_cmake_file(src_pkg_xml: Package, extra_params: dict):
     if pkg_has_docs(pkg_name_no_version) and not build_docs_deprecated(src_pkg_xml):
         params["cmake_args"] = ["-DBUILD_DOCS:BOOL=OFF"]
 
-    if pkg_has_pybind11(pkg_name_no_version):
+    if pkg_has_pybind11(pkg_name_no_version) and params["versioned_package_name"]:
         params["cmake_args"].append("-DSKIP_PYBIND11:BOOL=ON")
     if pkg_has_swig(pkg_name_no_version):
         params["cmake_args"].append("-DSKIP_SWIG:BOOL=ON")
@@ -403,7 +403,7 @@ def main(argv=sys.argv[1:]):
 
     # check for gz-cmake in package.name or dependences to indicate whether package name includes version
     params["versioned_package_name"] = True
-    if "gz-cmake" in [package.name] + package.build_depends:
+    if "gz-cmake" in [package.name] + [dep.name for dep in package.build_depends]:
         params["versioned_package_name"] = False
         if package.name[-1].isdigit():
             raise RuntimeError("Package %s has a number in the name but depends on gz-cmake" % package.name)
