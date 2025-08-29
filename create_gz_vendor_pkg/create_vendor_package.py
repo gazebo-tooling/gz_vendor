@@ -229,6 +229,14 @@ def cmake_pkg_name(pkg_name_no_version):
     return pkg_name_no_version
 
 
+def cmake_pkg_name_full(pkg_name):
+    # gz-fuel-tools needs special care as it's cmake package name is different
+    # from its deb package name.
+    if pkg_name.startswith("gz-fuel-tools"):
+        return pkg_name.replace("fuel-tools", "fuel_tools")
+    return pkg_name
+
+
 def github_pkg_name(pkg_name_no_version):
     # gz-fuel-tools needs special care as github name is different from its package.xml name
     if pkg_name_no_version == "gz-fuel_tools":
@@ -284,7 +292,7 @@ def create_vendor_package_xml(
         src_pkg_xml
     )
 
-    pkg_name_no_version = remove_version(params["pkg"].name)
+    pkg_name_no_version = params["pkg_name_no_version"]
     params["vendor_name"] = create_vendor_name(pkg_name_no_version)
 
     params["vendor_pkg_version"] = (
@@ -311,15 +319,16 @@ def create_cmake_file(src_pkg_xml: Package, extra_params: dict):
     )
     params["default_lib_vcs_ref"] = get_default_lib_vcs_ref(params["pkg"].name)
 
-    pkg_name_no_version, pkg_version = remove_version(params["pkg"].name, return_version=True)
+    pkg_name_no_version = params["pkg_name_no_version"]
     params["github_pkg_name"] = github_pkg_name(pkg_name_no_version)
     params["vendor_name"] = create_vendor_name(pkg_name_no_version)
     params["cmake_pkg_name"] = cmake_pkg_name(pkg_name_no_version)
+    params["cmake_pkg_name_full"] = cmake_pkg_name_full(params["pkg"].name)
 
     params["vendor_has_extra_cmake"] = pkg_has_extra_cmake(pkg_name_no_version)
     params["vendor_has_dsv"] = pkg_has_dsv(pkg_name_no_version)
-    params["has_patches"] = pkg_has_patches(pkg_name_no_version, pkg_version)
     params["version"] = split_version(params["pkg"].version)
+    params["has_patches"] = pkg_has_patches(pkg_name_no_version, params["version"]["major"])
 
     params["cmake_args"] = []
     if pkg_has_docs(pkg_name_no_version) and not build_docs_deprecated(src_pkg_xml):
@@ -392,8 +401,17 @@ def main(argv=sys.argv[1:]):
         cmake_file_path = Path(args.input_package_xml.name).parent / "CMakeLists.txt"
         params["version_suffix"] = parse_version_suffix(cmake_file_path)
 
-    pkg_name_no_version = remove_version(package.name)
-    vendor_name = create_vendor_name(pkg_name_no_version)
+    # check for gz-cmake in package.name or dependences to indicate whether package name includes version
+    params["versioned_package_name"] = True
+    if "gz-cmake" in [package.name] + package.build_depends:
+        params["versioned_package_name"] = False
+        if package.name[-1].isdigit():
+            raise RuntimeError("Package %s has a number in the name but depends on gz-cmake" % package.name)
+        params["pkg_name_no_version"] = package.name
+    else:
+        params["pkg_name_no_version"] = remove_version(package.name)
+
+    vendor_name = create_vendor_name(params["pkg_name_no_version"])
 
     if not args.output_dir:
         args.output_dir = vendor_name
@@ -421,17 +439,18 @@ def main(argv=sys.argv[1:]):
         shutil.copy(templates_path / file, Path(args.output_dir) / file)
 
     if args.overwrite_cmake_configs:
-        shutil.copy(
-            templates_path / "config.cmake.in",
-            Path(args.output_dir)
-            / f"{cmake_pkg_name(pkg_name_no_version)}-config.cmake.in",
-        )
-        shutil.copy(
-            templates_path / "extras.cmake.in",
-            Path(args.output_dir) / f"{vendor_name}-extras.cmake.in",
-        )
+        if params["versioned_package_name"]:
+            shutil.copy(
+                templates_path / "config.cmake.in",
+                Path(args.output_dir)
+                / f"{cmake_pkg_name(params['pkg_name_no_version'])}-config.cmake.in",
+            )
+            shutil.copy(
+                templates_path / "extras.cmake.in",
+                Path(args.output_dir) / f"{vendor_name}-extras.cmake.in",
+            )
 
-        if pkg_has_dsv(pkg_name_no_version):
+        if pkg_has_dsv(params["pkg_name_no_version"]):
             shutil.copy(
                 templates_path / "vendor.dsv.in",
                 Path(args.output_dir) / f"{vendor_name}.dsv.in",

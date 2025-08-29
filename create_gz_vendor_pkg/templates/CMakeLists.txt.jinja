@@ -13,7 +13,7 @@ set(LIB_NAME {{ cmake_pkg_name }})
 set(GITHUB_NAME {{ github_pkg_name }})
 string(REPLACE "-" "_" LIB_NAME_UNDERSCORE ${LIB_NAME})
 set(LIB_NAME_COMP_PREFIX ${LIB_NAME})
-set(LIB_NAME_FULL ${LIB_NAME}${LIB_VER_MAJOR})
+set(LIB_NAME_FULL {{ cmake_pkg_name_full }})
 set(LIB_VER ${LIB_VER_MAJOR}.${LIB_VER_MINOR}.${LIB_VER_PATCH})
 
 option(VENDOR_FROM_LIB_VCS_REF
@@ -104,6 +104,7 @@ if(NOT ${${LIB_NAME_FULL}_FOUND})
 endif()
 {% endif %}
 
+{% if versioned_package_name %}
 # The goal is to support versionless package names once the user has found the
 # vendor package. Example usage:
 #
@@ -140,3 +141,6 @@ write_basic_package_version_file(
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${LIB_NAME}-config.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/${LIB_NAME}-config-version.cmake
         DESTINATION "opt/${PROJECT_NAME}/extra_cmake/lib/cmake/${LIB_NAME}")
+{% else %}
+ament_package()
+{% endif %}
