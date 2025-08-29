@@ -115,15 +115,15 @@ def build_docs_deprecated(package: Package):
         source/upstream package.xml
     """
 
-    def is_gz_cmake4(name):
-        pkg_name, pkg_version = remove_version(name, return_version=True)
-        return pkg_name == "gz-cmake" and int(pkg_version) >= 4
+    def is_gz_cmake4_or_later(name):
+        pkg_name_no_version, pkg_version = remove_version(name, return_version=True)
+        return name == "gz-cmake" or (pkg_name_no_version == "gz-cmake" and int(pkg_version) >= 4)
 
-    if is_gz_cmake4(package.name):
+    if is_gz_cmake4_or_later(package.name):
         return True
     else:
         for dep in package.build_depends:
-            if is_gz_cmake4(dep.name):
+            if is_gz_cmake4_or_later(dep.name):
                 return True
     return False
 
@@ -203,8 +203,8 @@ def pkg_has_dsv(pkg_name_no_version):
     return pkg_name_no_version not in ["gz-tools", "gz-cmake"]
 
 
-def pkg_has_patches(pkg_name_no_version, pkg_version):
-    if pkg_name_no_version == "gz-cmake" and int(pkg_version) < 4:
+def pkg_has_patches(pkg_name_no_version, pkg_major_version):
+    if pkg_name_no_version == "gz-cmake" and int(pkg_major_version) < 4:
         return True
     return pkg_name_no_version in ["gz-rendering"]
 
