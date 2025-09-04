@@ -31,7 +31,13 @@ def main(argv=sys.argv[1:]):
 
     parser.add_argument(
         "gazebo_release",
+        type=str,
         help="Name of Gazebo release to use",
+    )
+    parser.add_argument(
+        "--output_dir",
+        type=str,
+        help="Output directory",
     )
     args, unknown_args = parser.parse_known_args(argv)
     collection = get_collection_local(args.gazebo_release)
@@ -45,8 +51,15 @@ def main(argv=sys.argv[1:]):
             package_xml_path = Path(lib_path) / "package.xml"
             print(package_xml_path)
 
+            output_dir_args = []
+            if args.output_dir != "":
+                vendor_name = name.replace('-', '_') + '_vendor'
+                output_path = str(Path(args.output_dir) / vendor_name)
+                output_dir_args.append("--output_dir")
+                output_dir_args.append(output_path)
+
             try:
-                create_vendor_package.main([str(package_xml_path), *unknown_args])
+                create_vendor_package.main([str(package_xml_path), *output_dir_args, *unknown_args])
             except Exception as e:
                 print("Error: ", e)
                 import traceback
