@@ -10,7 +10,7 @@ from subprocess import run
 
 
 def clone(path, info):
-    run(["git", "clone", "--depth", "1", info["url"], path])
+    run(["git", "clone", "--depth", "1", "-b", info["version"], info["url"], path])
 
 
 def get_collection(release):
@@ -49,6 +49,8 @@ def main(argv=sys.argv[1:]):
                 create_vendor_package.main([str(package_xml_path), *unknown_args])
             except Exception as e:
                 print("Error: ", e)
+                import traceback
+                traceback.print_exc()
 
 
 if __name__ == "__main__":
