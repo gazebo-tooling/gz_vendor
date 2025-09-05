@@ -334,6 +334,11 @@ def create_cmake_file(src_pkg_xml: Package, extra_params: dict):
     if pkg_has_docs(pkg_name_no_version) and not build_docs_deprecated(src_pkg_xml):
         params["cmake_args"] = ["-DBUILD_DOCS:BOOL=OFF"]
 
+    # CLI11 is not available on ci.ros2.org, which uses a curated list of dependencies instead of rosdep.
+    # TODO(azeey): Remove this once ros2/cli#825 and ros2/ros2#1745 are merged
+    if pkg_name_no_version == "gz-utils":
+        params["cmake_args"].append("-DGZ_UTILS_VENDOR_CLI11=ON")
+
     if pkg_has_pybind11(pkg_name_no_version) and params["versioned_package_name"]:
         params["cmake_args"].append("-DSKIP_PYBIND11:BOOL=ON")
     if pkg_has_swig(pkg_name_no_version):
