@@ -40,7 +40,7 @@ def main(argv=sys.argv[1:]):
         help="Output directory",
     )
     args, unknown_args = parser.parse_known_args(argv)
-    collection = get_collection_local(args.gazebo_release)
+    collection = get_collection(args.gazebo_release)
 
     # Sparse clone all the repos first
     with tempfile.TemporaryDirectory(prefix="gz_vendor_") as libs_path:
