@@ -51,6 +51,7 @@ EXTRA_VENDORED_PKGS = {
 # and the values are used as replacements.
 PACKAGE_REPLACEMENTS = {
     "liburdfdom-dev": "urdfdom",
+    "libzenohcpp-dev": "zenoh_cpp_vendor",
 }
 
 # These dependencies will be removed from the package.xml provided by the upstream Gazebo library
@@ -61,6 +62,9 @@ DEPENDENCY_DISALLOW_LIST = [
     # It's also not available on RHEL, which prevents all vendor packages that depend
     # on gz-tools from being released on RHEL.
     "rubocop",
+    # libzenohc and libzenohcpp-dev need to be replaced with zenoh_cpp_vendor on the ROS side.
+    # However we only need to map one of them to avoid duplication, therefore, we disallow libzenohc here.
+    "libzenohc-dev"
 ]
 
 # These were taken from catkin_pkg's package.py file
