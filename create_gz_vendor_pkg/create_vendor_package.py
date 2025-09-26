@@ -464,6 +464,11 @@ def main(argv=sys.argv[1:]):
                 templates_path / "vendor.dsv.in",
                 Path(args.output_dir) / f"{vendor_name}.dsv.in",
             )
+            if not params["versioned_package_name"]:
+                shutil.copy(
+                    templates_path / "pythonpath.dsv.in",
+                    Path(args.output_dir) / f"{vendor_name}_pythonpath.dsv.in",
+                )
 
 
 if __name__ == "__main__":
