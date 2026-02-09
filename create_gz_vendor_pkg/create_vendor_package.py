@@ -210,7 +210,9 @@ def pkg_has_dsv(pkg_name_no_version):
 def pkg_has_patches(pkg_name_no_version, pkg_major_version):
     if pkg_name_no_version == "gz-cmake" and int(pkg_major_version) < 4:
         return True
-    return pkg_name_no_version in ["gz-rendering"]
+    if pkg_name_no_version == "gz-msgs" and int(pkg_major_version) < 12:
+        return True
+    return pkg_name_no_version in ["gz-rendering", "gz-msgs"]
 
 
 def pkg_has_swig(pkg_name_no_version):
