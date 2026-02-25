@@ -391,7 +391,7 @@ def main(argv=sys.argv[1:]):
     parser.add_argument(
         "--overwrite_cmake_configs",
         action="store_true",
-        default=False,
+        default=True,
         help="If true, overwrites cmake config (.in) files",
     )
     args = parser.parse_args(argv)
