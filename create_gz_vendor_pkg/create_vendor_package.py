@@ -217,10 +217,6 @@ def pkg_has_swig(pkg_name_no_version):
     return pkg_name_no_version in ["gz-math"]
 
 
-def pkg_has_pybind11(pkg_name_no_version):
-    return pkg_name_no_version in ["gz-math", "sdformat", "gz-transport", "gz-sim"]
-
-
 def pkg_has_docs(pkg_name_no_version):
     return pkg_name_no_version not in ["sdformat"]
 
@@ -445,33 +441,36 @@ def main(argv=sys.argv[1:]):
     for file in ["LICENSE", "CONTRIBUTING.md"]:
         shutil.copy(templates_path / file, Path(args.output_dir) / file)
 
-    if args.overwrite_cmake_configs:
-        if params["versioned_package_name"]:
-            shutil.copy(
-                templates_path / "config.cmake.in",
-                Path(args.output_dir)
-                / f"{cmake_pkg_name(params['pkg_name_no_version'])}-config.cmake.in",
-            )
-            shutil.copy(
-                templates_path / "extras.cmake.in",
-                Path(args.output_dir) / f"{vendor_name}-extras.cmake.in",
-            )
-            # Copy Python shim template for versioned packages
-            shutil.copy(
-                templates_path / "unversioned_shim.py.in",
-                Path(args.output_dir) / "unversioned_shim.py.in",
-            )
+    def copy_template(src: Path, dst: Path):
+        if args.overwrite_cmake_configs or not dst.exists():
+            shutil.copy(src, dst)
 
-        if pkg_has_dsv(params["pkg_name_no_version"]):
-            shutil.copy(
-                templates_path / "vendor.dsv.in",
-                Path(args.output_dir) / f"{vendor_name}.dsv.in",
-            )
-            # Copy pythonpath.dsv.in for all packages with DSV support
-            shutil.copy(
-                templates_path / "pythonpath.dsv.in",
-                Path(args.output_dir) / f"{vendor_name}_pythonpath.dsv.in",
-            )
+    if params["versioned_package_name"]:
+        copy_template(
+            templates_path / "config.cmake.in",
+            Path(args.output_dir)
+            / f"{cmake_pkg_name(params['pkg_name_no_version'])}-config.cmake.in",
+        )
+        copy_template(
+            templates_path / "extras.cmake.in",
+            Path(args.output_dir) / f"{vendor_name}-extras.cmake.in",
+        )
+        # Copy Python shim template for versioned packages
+        copy_template(
+            templates_path / "unversioned_shim.py.in",
+            Path(args.output_dir) / "unversioned_shim.py.in",
+        )
+
+    if pkg_has_dsv(params["pkg_name_no_version"]):
+        copy_template(
+            templates_path / "vendor.dsv.in",
+            Path(args.output_dir) / f"{vendor_name}.dsv.in",
+        )
+        # Copy pythonpath.dsv.in for all packages with DSV support
+        copy_template(
+            templates_path / "pythonpath.dsv.in",
+            Path(args.output_dir) / f"{vendor_name}_pythonpath.dsv.in",
+        )
 
 
 if __name__ == "__main__":
