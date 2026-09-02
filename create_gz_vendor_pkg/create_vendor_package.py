@@ -217,6 +217,10 @@ def pkg_has_swig(pkg_name_no_version):
     return pkg_name_no_version in ["gz-math"]
 
 
+def pkg_has_pybind11(pkg_name_no_version):
+    return pkg_name_no_version in ["gz-math", "sdformat", "gz-transport", "gz-sim"]
+
+
 def pkg_has_docs(pkg_name_no_version):
     return pkg_name_no_version not in ["sdformat"]
 
@@ -327,6 +331,7 @@ def create_cmake_file(src_pkg_xml: Package, extra_params: dict):
 
     params["vendor_has_extra_cmake"] = pkg_has_extra_cmake(pkg_name_no_version)
     params["vendor_has_dsv"] = pkg_has_dsv(pkg_name_no_version)
+    params["has_pybind11"] = pkg_has_pybind11(pkg_name_no_version)
     params["version"] = split_version(params["pkg"].version)
     params["has_patches"] = pkg_has_patches(pkg_name_no_version, params["version"]["major"])
 
@@ -455,22 +460,24 @@ def main(argv=sys.argv[1:]):
             templates_path / "extras.cmake.in",
             Path(args.output_dir) / f"{vendor_name}-extras.cmake.in",
         )
-        # Copy Python shim template for versioned packages
-        copy_template(
-            templates_path / "unversioned_shim.py.in",
-            Path(args.output_dir) / "unversioned_shim.py.in",
-        )
+        if pkg_has_pybind11(params["pkg_name_no_version"]):
+            # Copy Python shim template for versioned packages
+            copy_template(
+                templates_path / "unversioned_shim.py.in",
+                Path(args.output_dir) / "unversioned_shim.py.in",
+            )
 
     if pkg_has_dsv(params["pkg_name_no_version"]):
         copy_template(
             templates_path / "vendor.dsv.in",
             Path(args.output_dir) / f"{vendor_name}.dsv.in",
         )
-        # Copy pythonpath.dsv.in for all packages with DSV support
-        copy_template(
-            templates_path / "pythonpath.dsv.in",
-            Path(args.output_dir) / f"{vendor_name}_pythonpath.dsv.in",
-        )
+        if pkg_has_pybind11(params["pkg_name_no_version"]):
+            # Copy pythonpath.dsv.in for packages with pybind11 and DSV support
+            copy_template(
+                templates_path / "pythonpath.dsv.in",
+                Path(args.output_dir) / f"{vendor_name}_pythonpath.dsv.in",
+            )
 
 
 if __name__ == "__main__":
