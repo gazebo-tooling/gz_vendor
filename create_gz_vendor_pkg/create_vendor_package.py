@@ -478,6 +478,10 @@ def main(argv=sys.argv[1:]):
                 templates_path / "pythonpath.dsv.in",
                 Path(args.output_dir) / f"{vendor_name}_pythonpath.dsv.in",
             )
+            shutil.copy(
+                templates_path / "vendor.sh.in",
+                Path(args.output_dir) / f"{vendor_name}.sh.in",
+            )
 
 
 if __name__ == "__main__":
