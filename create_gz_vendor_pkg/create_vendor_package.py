@@ -472,11 +472,19 @@ def main(argv=sys.argv[1:]):
             templates_path / "vendor.dsv.in",
             Path(args.output_dir) / f"{vendor_name}.dsv.in",
         )
+        copy_template(
+            templates_path / "vendor.sh.in",
+            Path(args.output_dir) / f"{vendor_name}.sh.in",
+        )
         if pkg_has_python_bindings(params["pkg_name_no_version"]):
-            # Copy pythonpath.dsv.in for packages with pybind11 and DSV support
+            # Copy pythonpath.dsv.in and pythonpath.sh.in for packages with pybind11 and DSV support
             copy_template(
                 templates_path / "pythonpath.dsv.in",
                 Path(args.output_dir) / f"{vendor_name}_pythonpath.dsv.in",
+            )
+            copy_template(
+                templates_path / "pythonpath.sh.in",
+                Path(args.output_dir) / f"{vendor_name}_pythonpath.sh.in",
             )
 
 
