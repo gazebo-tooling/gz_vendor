@@ -95,7 +95,7 @@ ament_export_dependencies(
 {% endif %}
 
 {% if vendor_has_dsv %}
-if(NOT ${${LIB_NAME_FULL}_FOUND})
+if(FORCE_BUILD_VENDOR_PKG OR NOT ${${LIB_NAME_FULL}_FOUND})
   ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.dsv.in")
   ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.sh.in")
 endif()
